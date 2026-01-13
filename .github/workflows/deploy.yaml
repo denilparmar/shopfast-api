@@ -24,7 +24,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20'  # LTS version recommended
+          node-version: '20'  # LTS recommended
 
       # 3️⃣ Configure AWS credentials
       - name: Configure AWS Credentials
@@ -34,14 +34,10 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      # 4️⃣ Install Serverless Framework (core-only, no dashboard login)
-      - name: Install Serverless Framework
-        run: npm install -g serverless@4.30.0 --no-dashboard
-
-      # 5️⃣ Install project dependencies (ignore peer dependency issues)
+      # 4️⃣ Install project dependencies (including Serverless locally)
       - name: Install Node dependencies
         run: npm install --legacy-peer-deps
 
-      # 6️⃣ Deploy Serverless API (uses AWS credentials, no dashboard login)
+      # 5️⃣ Deploy Serverless API (use local Serverless, no dashboard login)
       - name: Deploy Serverless API
-        run: serverless deploy --stage prod --no-telemetry
+        run: npx serverless deploy --stage prod --no-telemetry
