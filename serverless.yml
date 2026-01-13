@@ -3,14 +3,14 @@ service: shopfast-api
 frameworkVersion: '3'
 
 plugins:
-  - serverless-dotenv-plugin
   - serverless-offline
+  - serverless-dotenv-plugin
 
 provider:
   name: aws
   runtime: python3.11
   region: us-east-1
-  stage: ${opt:stage, 'dev'}
+  stage: dev
 
   environment:
     USER_POOL_ID: ${env:USER_POOL_ID}
@@ -20,27 +20,25 @@ functions:
   createPayment:
     handler: src/handler.create_payment
     events:
-      - httpApi:
+      - http:
           path: /payments
           method: post
           authorizer:
             type: jwt
-            issuer: https://cognito-idp.us-east-1.amazonaws.com/${env:USER_POOL_ID}
-            audience: ${env:USER_POOL_CLIENT_ID}
+            name: cognitoAuthorizer  # required
+            identitySource: $request.header.Authorization
             scopes:
               - payment-service/payments.create
-
 
   refundPayment:
     handler: src/handler.refund_payment
     events:
-      - httpApi:
+      - http:
           path: /payments/refund
           method: post
           authorizer:
             type: jwt
-            issuer: https://cognito-idp.us-east-1.amazonaws.com/${env:USER_POOL_ID}
-            audience: ${env:USER_POOL_CLIENT_ID}
+            name: cognitoAuthorizer
+            identitySource: $request.header.Authorization
             scopes:
               - payment-service/payments.refund
-
