@@ -1,0 +1,13 @@
+{
+  "name": "shopfast-api",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "offline": "serverless offline"
+  },
+  "devDependencies": {
+    "serverless": "^4.30.0",
+    "serverless-dotenv-plugin": "^6.0.0",
+    "serverless-offline": "^14.4.0"
+  }
+}
