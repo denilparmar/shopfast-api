@@ -1,6 +1,6 @@
 service: shopfast-api
 
-frameworkVersion: '4'
+frameworkVersion: '3'
 
 plugins:
   - serverless-dotenv-plugin
@@ -23,7 +23,13 @@ functions:
       - httpApi:
           path: /payments
           method: post
-          # authorizer: ${opt:offline,'NONE'}
+          authorizer:
+            type: jwt
+            issuer: https://cognito-idp.us-east-1.amazonaws.com/${env:USER_POOL_ID}
+            audience: ${env:USER_POOL_CLIENT_ID}
+            scopes:
+              - payment-service/payments.create
+
 
   refundPayment:
     handler: src/handler.refund_payment
@@ -31,4 +37,10 @@ functions:
       - httpApi:
           path: /payments/refund
           method: post
-          # authorizer: ${opt:offline,'NONE'}
+          authorizer:
+            type: jwt
+            issuer: https://cognito-idp.us-east-1.amazonaws.com/${env:USER_POOL_ID}
+            audience: ${env:USER_POOL_CLIENT_ID}
+            scopes:
+              - payment-service/payments.refund
+

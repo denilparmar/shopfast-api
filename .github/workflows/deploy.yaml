@@ -16,17 +16,14 @@ jobs:
       USER_POOL_CLIENT_ID: ${{ secrets.USER_POOL_CLIENT_ID }}
 
     steps:
-      # 1️⃣ Checkout repository
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2️⃣ Setup Node.js (LTS)
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20'  # LTS recommended
+          node-version: '20'
 
-      # 3️⃣ Configure AWS credentials
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -34,10 +31,8 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      # 4️⃣ Install project dependencies (including Serverless locally)
-      - name: Install Node dependencies
+      - name: Install dependencies
         run: npm install --legacy-peer-deps
 
-      # 5️⃣ Deploy Serverless API (use local Serverless, no dashboard login)
       - name: Deploy Serverless API
-        run: npx serverless deploy --stage prod --no-telemetry
+        run: npx serverless deploy --stage dev
