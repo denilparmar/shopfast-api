@@ -23,11 +23,10 @@ functions:
       - http:
           path: /payments
           method: post
-          authorizer: 
-             type: COGNITO_USER_POOLS
-             authorizerId: 
-               Ref: ShopFastApiGatewayAuthorizer
-
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ShopFastApiGatewayAuthorizer
 
   refundPayment:
     handler: src/handler.refund_payment
@@ -35,21 +34,20 @@ functions:
       - http:
           path: /payments/refund
           method: post
-          authorizer: 
-             type: COGNITO_USER_POOLS
-             authorizerId: 
-               Ref: ShopFastApiGatewayAuthorizer
-
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ShopFastApiGatewayAuthorizer
 
 resources:
   Resources:
-    ShopFastApiGatewayAuthorizer: 
+    ShopFastApiGatewayAuthorizer:
       Type: AWS::ApiGateway::Authorizer
-      Properties: 
+      Properties:
         Name: CognitoUserPool
         Type: COGNITO_USER_POOLS
         IdentitySource: method.request.header.Authorization
-        RestApiId: 
+        RestApiId:
           Ref: ApiGatewayRestApi
-        ProviderARNs: 
+        ProviderARNs:
           - !ImportValue ShopFast-UserPoolArn
