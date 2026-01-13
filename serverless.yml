@@ -30,3 +30,52 @@ functions:
       - http:
           path: /payments/refund
           method: post
+
+resources:
+  Resources:
+    ShopFastCognitoAuthorizer:
+      Type: AWS::ApiGateway::Authorizer
+      Properties:
+        Name: ShopFastCognitoAuthorizer
+        Type: COGNITO_USER_POOLS
+        IdentitySource: method.request.header.Authorization
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        ProviderARNs:
+          - arn:aws:cognito-idp:${self:provider.region}:${AWS::AccountId}:userpool/${env:USER_POOL_ID}
+
+    CreatePaymentMethodAuth:
+      Type: AWS::ApiGateway::Method
+      Properties:
+        AuthorizationType: COGNITO_USER_POOLS
+        AuthorizerId:
+          Ref: ShopFastCognitoAuthorizer
+        HttpMethod: POST
+        ResourceId:
+          Ref: ApiGatewayResourcePayments
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        Integration:
+          Type: AWS_PROXY
+          IntegrationHttpMethod: POST
+          Uri:
+            Fn::Sub: >
+              arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CreatePaymentLambdaFunction.Arn}/invocations
+
+    RefundPaymentMethodAuth:
+      Type: AWS::ApiGateway::Method
+      Properties:
+        AuthorizationType: COGNITO_USER_POOLS
+        AuthorizerId:
+          Ref: ShopFastCognitoAuthorizer
+        HttpMethod: POST
+        ResourceId:
+          Ref: ApiGatewayResourcePaymentsRefund
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        Integration:
+          Type: AWS_PROXY
+          IntegrationHttpMethod: POST
+          Uri:
+            Fn::Sub: >
+              arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RefundPaymentLambdaFunction.Arn}/invocations
