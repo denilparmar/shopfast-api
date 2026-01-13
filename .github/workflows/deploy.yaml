@@ -34,7 +34,7 @@ jobs:
 
       # 5️⃣ Install Node dependencies
       - name: Install project dependencies
-        run: npm ci
+        run: npm install --legacy-peer-deps
 
       # 7️⃣ Deploy Serverless API
       - name: Deploy Serverless API
