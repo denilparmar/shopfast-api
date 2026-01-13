@@ -23,12 +23,6 @@ functions:
       - http:
           path: /payments
           method: post
-          authorizer:
-            type: jwt
-            name: cognitoAuthorizer  # required
-            identitySource: $request.header.Authorization
-            scopes:
-              - payment-service/payments.create
 
   refundPayment:
     handler: src/handler.refund_payment
@@ -36,9 +30,3 @@ functions:
       - http:
           path: /payments/refund
           method: post
-          authorizer:
-            type: jwt
-            name: cognitoAuthorizer
-            identitySource: $request.header.Authorization
-            scopes:
-              - payment-service/payments.refund
