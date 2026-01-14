@@ -13,8 +13,8 @@ provider:
   stage: dev
 
   environment:
-    USER_POOL_ID: ${env:USER_POOL_ID}
-    USER_POOL_CLIENT_ID: ${env:USER_POOL_CLIENT_ID}
+    USER_POOL_ID: !ImportValue ShopFast-UserPoolId
+    USER_POOL_CLIENT_ID: !ImportValue ShopFastUserPoolClientA
 
 functions:
   createPayment:
