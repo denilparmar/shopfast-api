@@ -14,9 +14,10 @@ provider:
 
   environment:
     USER_POOL_ID: !ImportValue ShopFast-UserPoolId
-    USER_POOL_CLIENT_ID: !ImportValue ShopFast-UserPoolClientId
+    USER_POOL_CLIENT_ID: !ImportValue ShopFast-UserPoolClientIdA
 
 functions:
+
   createPayment:
     handler: src/handler.create_payment
     events:
@@ -27,6 +28,8 @@ functions:
             type: COGNITO_USER_POOLS
             authorizerId:
               Ref: ShopFastApiGatewayAuthorizer
+            scopes:
+              - payment-service/payments.create
 
   refundPayment:
     handler: src/handler.refund_payment
@@ -38,13 +41,16 @@ functions:
             type: COGNITO_USER_POOLS
             authorizerId:
               Ref: ShopFastApiGatewayAuthorizer
+            scopes:
+              - payment-service/payments.refund
 
 resources:
   Resources:
+
     ShopFastApiGatewayAuthorizer:
       Type: AWS::ApiGateway::Authorizer
       Properties:
-        Name: CognitoUserPool
+        Name: ShopFastCognitoAuthorizer
         Type: COGNITO_USER_POOLS
         IdentitySource: method.request.header.Authorization
         RestApiId:
