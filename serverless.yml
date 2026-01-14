@@ -14,7 +14,7 @@ provider:
 
   environment:
     USER_POOL_ID: !ImportValue ShopFast-UserPoolId
-    USER_POOL_CLIENT_ID: !ImportValue ShopFastUserPoolClientA
+    USER_POOL_CLIENT_ID: !ImportValue ShopFast-UserPoolClientId
 
 functions:
   createPayment:
