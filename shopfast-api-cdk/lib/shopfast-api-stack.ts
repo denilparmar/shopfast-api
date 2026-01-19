@@ -3,6 +3,7 @@ import { Construct } from "constructs";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as apigwv2 from "aws-cdk-lib/aws-apigatewayv2";
 import * as integrations from "aws-cdk-lib/aws-apigatewayv2-integrations";
+import * as path from 'path';
 
 export class ShopfastApiStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -17,7 +18,7 @@ export class ShopfastApiStack extends cdk.Stack {
       {
         runtime: lambda.Runtime.PYTHON_3_11,
         handler: "handler.create_payment",
-        code: lambda.Code.fromAsset("src"),
+        code: lambda.Code.fromAsset(path.join(__dirname, '../../src')),
       },
     );
 
@@ -27,7 +28,7 @@ export class ShopfastApiStack extends cdk.Stack {
       {
         runtime: lambda.Runtime.PYTHON_3_11,
         handler: "handler.refund_payment",
-        code: lambda.Code.fromAsset("src"),
+        code: lambda.Code.fromAsset(path.join(__dirname, '../../src')),
       },
     );
 
