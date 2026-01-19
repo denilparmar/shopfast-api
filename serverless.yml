@@ -24,10 +24,7 @@ functions:
           path: /payments/create
           method: post
           authorizer:
-            arn: !Sub
-                - arn:aws:apigateway:${AWS::Region}::/restapis/${RestApiId}/authorizers/${AuthorizerId}
-                - RestApiId: !Ref ApiGatewayRestApi
-                  AuthorizerId: !Ref ShopFastApiGatewayAuthorizer
+            name: ShopFastCognitoAuthorizer
             scopes:
               - payment-service/payments.create
 
@@ -38,10 +35,7 @@ functions:
           path: /payments/refund
           method: post
           authorizer:
-            arn: !Sub
-                - arn:aws:apigateway:${AWS::Region}::/restapis/${RestApiId}/authorizers/${AuthorizerId}
-                - RestApiId: !Ref ApiGatewayRestApi
-                  AuthorizerId: !Ref ShopFastApiGatewayAuthorizer
+            name: ShopFastCognitoAuthorizer
             scopes:
               - payment-service/payments.refund
 
