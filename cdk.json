@@ -1,0 +1,8 @@
+{
+  "app": "npx ts-node --prefer-ts-exts bin/shopfast-api.ts",
+  "context": {
+    "@aws-cdk/core:newStyleStackSynthesis": true,
+    "userPoolId": "us-east-1_XXXXXXXXX",
+    "userPoolClientId": "YYYYYYYYYYYY"
+  }
+}
