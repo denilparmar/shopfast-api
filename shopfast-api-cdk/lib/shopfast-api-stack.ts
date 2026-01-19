@@ -11,9 +11,7 @@ export class ShopfastApiStack extends cdk.Stack {
     const stage = 'dev';
     super(scope, id, props);
 
-    // ------------------------
-    // Python Lambda functions
-    // ------------------------
+    //#region Lambda Functions
     const createPaymentLambda = new lambda.Function(
       this,
       "CreatePaymentLambda",
@@ -33,11 +31,10 @@ export class ShopfastApiStack extends cdk.Stack {
         code: lambda.Code.fromAsset(path.join(__dirname, '../../src')),
       },
     );
+    //#endregion
 
-    // ------------------------
-    // HTTP API Gateway
-    // ------------------------
 
+    //#region HTTP API Gateway
     const httpApi = new apigwv2.HttpApi(this, "ShopfastHttpApi", {
       apiName: 'shopfast-api',
     });
@@ -45,14 +42,10 @@ export class ShopfastApiStack extends cdk.Stack {
 
     const apiStage = new apigwv2.HttpStage(this, 'DevStage', {
       httpApi: httpApi,
-      stageName: stage,   // this is your stage name
-      autoDeploy: true,   // auto-deploy on API changes
+      stageName: stage,
+      autoDeploy: true,
     });
-
-
-    // ------------------------
-    // Routes
-    // ------------------------
+    
     httpApi.addRoutes({
       path: "/payments/create",
       methods: [apigwv2.HttpMethod.POST],
@@ -70,7 +63,9 @@ export class ShopfastApiStack extends cdk.Stack {
         refundPaymentLambda,
       )
     });
+    //#endregion
 
+    //#region CustomDomain
     const certificateArn = cdk.Fn.importValue('ShopFast-ApiCertificateArn');
     const certificate = certificatemanager.Certificate.fromCertificateArn(
       this,
@@ -89,4 +84,5 @@ export class ShopfastApiStack extends cdk.Stack {
       stage: apiStage,
     });
   }
+  //#endregion
 }
