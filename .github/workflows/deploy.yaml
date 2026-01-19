@@ -47,7 +47,9 @@ jobs:
           npx tsc
 
       - name: Bootstrap CDK (if first time)
-        run: npx cdk bootstrap aws://$AWS_ACCOUNT_ID/$AWS_REGION
+        run: |
+          cd shopfast-api-cdk
+          npx cdk bootstrap aws://$AWS_ACCOUNT_ID/$AWS_REGION
 
       - name: Deploy CDK Stack
         run: |
