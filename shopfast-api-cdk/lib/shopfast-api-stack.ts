@@ -4,6 +4,8 @@ import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as apigwv2 from "aws-cdk-lib/aws-apigatewayv2";
 import * as integrations from "aws-cdk-lib/aws-apigatewayv2-integrations";
 import * as certificatemanager from 'aws-cdk-lib/aws-certificatemanager';
+import * as authorizers from 'aws-cdk-lib/aws-apigatewayv2-authorizers';
+import * as cognito from 'aws-cdk-lib/aws-cognito';
 import * as path from 'path';
 
 export class ShopfastApiStack extends cdk.Stack {
@@ -33,6 +35,19 @@ export class ShopfastApiStack extends cdk.Stack {
     );
     //#endregion
 
+    //#region API Gateway Cognito Authorizer
+    const userPoolId = cdk.Fn.importValue('ShopFast-UserPoolId');
+    const userPoolClientId = cdk.Fn.importValue('ShopFast-UserPoolClientIdA');
+    const userPool = cognito.UserPool.fromUserPoolId(this, 'ImportedUserPool', userPoolId);
+    const userPoolClient = cognito.UserPoolClient.fromUserPoolClientId(this, 'ImportedClient', userPoolClientId);
+
+
+    const cognitoAuthorizer = new authorizers.HttpUserPoolAuthorizer('ShopfastAPICognitoAuthorizer', userPool, {
+      userPoolClients: [userPoolClient],
+      authorizerName: 'ShopfastAPICognitoAuthorizer',
+      identitySource: ['$request.header.Authorization'],
+    })
+     //#endregion
 
     //#region HTTP API Gateway
     const httpApi = new apigwv2.HttpApi(this, "ShopfastHttpApi", {
@@ -52,7 +67,9 @@ export class ShopfastApiStack extends cdk.Stack {
       integration: new integrations.HttpLambdaIntegration(
         "CreatePaymentIntegration",
         createPaymentLambda,
-      )
+      ),
+      authorizer: cognitoAuthorizer,
+      authorizationScopes: ['payment-service/payments.create'],
     });
 
     httpApi.addRoutes({
@@ -61,11 +78,13 @@ export class ShopfastApiStack extends cdk.Stack {
       integration: new integrations.HttpLambdaIntegration(
         "RefundPaymentIntegration",
         refundPaymentLambda,
-      )
+      ),
+      authorizer: cognitoAuthorizer,
+      authorizationScopes: ['payment-service/payments.refund'],
     });
     //#endregion
 
-    //#region CustomDomain
+    //#region CustomDomain For API
     const certificateArn = cdk.Fn.importValue('ShopFast-ApiCertificateArn');
     const certificate = certificatemanager.Certificate.fromCertificateArn(
       this,
@@ -83,6 +102,6 @@ export class ShopfastApiStack extends cdk.Stack {
       domainName: apiDomainName,
       stage: apiStage,
     });
+     //#endregion
   }
-  //#endregion
 }
