@@ -1,13 +1,14 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
     "module": "commonjs",
-    "lib": ["ES2020"],
-    "strict": true,
+    "target": "ES2020",
     "esModuleInterop": true,
+    "strict": true,
+    "moduleResolution": "node",
+    "types": ["node"],
     "outDir": "dist",
-    "rootDir": "shopfast-api-cdk",
+    "rootDir": ".",
     "skipLibCheck": true
   },
-  "include": ["shopfast-api-cdk/bin/**/*.ts", "shopfast-api-cdk/lib/**/*.ts"]
+  "include": ["bin/**/*.ts", "lib/**/*.ts"]
 }
