@@ -3,10 +3,12 @@ import { Construct } from "constructs";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as apigwv2 from "aws-cdk-lib/aws-apigatewayv2";
 import * as integrations from "aws-cdk-lib/aws-apigatewayv2-integrations";
+import * as certificatemanager from 'aws-cdk-lib/aws-certificatemanager';
 import * as path from 'path';
 
 export class ShopfastApiStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+    const stage = 'dev';
     super(scope, id, props);
 
     // ------------------------
@@ -35,7 +37,18 @@ export class ShopfastApiStack extends cdk.Stack {
     // ------------------------
     // HTTP API Gateway
     // ------------------------
-    const httpApi = new apigwv2.HttpApi(this, "ShopfastHttpApi");
+
+    const httpApi = new apigwv2.HttpApi(this, "ShopfastHttpApi", {
+      apiName: 'shopfast-api',
+    });
+
+
+    const apiStage = new apigwv2.HttpStage(this, 'DevStage', {
+      httpApi: httpApi,
+      stageName: stage,   // this is your stage name
+      autoDeploy: true,   // auto-deploy on API changes
+    });
+
 
     // ------------------------
     // Routes
@@ -58,12 +71,22 @@ export class ShopfastApiStack extends cdk.Stack {
       )
     });
 
-    // ------------------------
-    // Output API endpoint
-    // ------------------------
-    new cdk.CfnOutput(this, "ApiUrl", {
-      value: httpApi.apiEndpoint,
-      description: "HTTP API URL for Shopfast API",
+    const certificateArn = cdk.Fn.importValue('ShopFast-ApiCertificateArn');
+    const certificate = certificatemanager.Certificate.fromCertificateArn(
+      this,
+      'ApiCertificate',
+      certificateArn
+    );
+
+    const apiDomainName = new apigwv2.DomainName(this, 'CustomDomain', {
+      domainName: 'api-dev.denilparmar.work',
+      certificate: certificate,
+    });
+
+    new apigwv2.ApiMapping(this, 'ApiMapping', {
+      api: httpApi,
+      domainName: apiDomainName,
+      stage: apiStage,
     });
   }
 }
