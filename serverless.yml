@@ -24,9 +24,10 @@ functions:
           path: /payments/create
           method: post
           authorizer:
-            type: COGNITO_USER_POOLS
-            userPoolIds:
-              - !ImportValue ShopFast-UserPoolId
+            arn: !Sub
+                - arn:aws:apigateway:${AWS::Region}::/restapis/${RestApiId}/authorizers/${AuthorizerId}
+                - RestApiId: !Ref ApiGatewayRestApi
+                  AuthorizerId: !Ref ShopFastApiGatewayAuthorizer
             scopes:
               - payment-service/payments.create
 
@@ -37,24 +38,25 @@ functions:
           path: /payments/refund
           method: post
           authorizer:
-            type: COGNITO_USER_POOLS
-            userPoolIds:
-              - !ImportValue ShopFast-UserPoolId
+            arn: !Sub
+                - arn:aws:apigateway:${AWS::Region}::/restapis/${RestApiId}/authorizers/${AuthorizerId}
+                - RestApiId: !Ref ApiGatewayRestApi
+                  AuthorizerId: !Ref ShopFastApiGatewayAuthorizer
             scopes:
               - payment-service/payments.refund
 
 resources:
   Resources:
-    # ShopFastApiGatewayAuthorizer:
-    #   Type: AWS::ApiGateway::Authorizer
-    #   Properties:
-    #     Name: ShopFastCognitoAuthorizer
-    #     Type: COGNITO_USER_POOLS
-    #     IdentitySource: method.request.header.Authorization
-    #     RestApiId:
-    #       Ref: ApiGatewayRestApi
-    #     ProviderARNs:
-    #       - !ImportValue ShopFast-UserPoolArn
+    ShopFastApiGatewayAuthorizer:
+      Type: AWS::ApiGateway::Authorizer
+      Properties:
+        Name: ShopFastCognitoAuthorizer
+        Type: COGNITO_USER_POOLS
+        IdentitySource: method.request.header.Authorization
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        ProviderARNs:
+          - !ImportValue ShopFast-UserPoolArn
 
     ApiCustomDomain:
       Type: AWS::ApiGateway::DomainName
