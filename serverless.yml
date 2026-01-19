@@ -17,15 +17,6 @@ provider:
     USER_POOL_ID: !ImportValue ShopFast-UserPoolId
     USER_POOL_CLIENT_ID: !ImportValue ShopFast-UserPoolClientIdA
 
-custom:
-  customDomain:
-    domainName: api-dev.denilparmar.work
-    basePath: ''
-    stage: dev
-    certificateArn: ${cf:shopfast-api-cert-dev.ShopFastApiCertificateArn}
-    createRoute53Record: false
-    endpointType: EDGE
-
 functions:
   createPayment:
     handler: src/handler.create_payment
