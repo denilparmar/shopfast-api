@@ -20,12 +20,11 @@ provider:
 custom:
   customDomain:
     domainName: api-dev.denilparmar.work
+    basePath: ''
     stage: dev
+    certificateArn: ${cf:shopfast-api-cert-dev.ShopFastApiCertificateArn}
     createRoute53Record: false
     endpointType: EDGE
-    securityPolicy: TLS_1_2
-    certificateName: api-dev.denilparmar.work
-    autoDomain: true
 
 functions:
   createPayment:
