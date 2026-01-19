@@ -42,10 +42,14 @@ jobs:
           pip install -r src/requirements.txt -t src
 
       - name: Build TypeScript CDK
-        run: npx tsc
+        run: |
+          cd shopfast-api-cdk
+          npx tsc
 
       - name: Bootstrap CDK (if first time)
         run: npx cdk bootstrap aws://$AWS_ACCOUNT_ID/$AWS_REGION
 
       - name: Deploy CDK Stack
-        run: npx cdk deploy ShopfastApiStack --require-approval never
+        run: |
+          cd shopfast-api-cdk
+          npx cdk deploy ShopfastApiStack --require-approval never

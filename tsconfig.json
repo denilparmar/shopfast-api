@@ -6,8 +6,8 @@
     "strict": true,
     "esModuleInterop": true,
     "outDir": "dist",
-    "rootDir": ".",
+    "rootDir": "shopfast-api-cdk",
     "skipLibCheck": true
   },
-  "include": ["bin/**/*.ts", "lib/**/*.ts"]
+  "include": ["shopfast-api-cdk/bin/**/*.ts", "shopfast-api-cdk/lib/**/*.ts"]
 }
