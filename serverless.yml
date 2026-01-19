@@ -24,8 +24,7 @@ functions:
           path: /payments/create
           method: post
           authorizer:
-            authorizerId:
-              Ref: ShopFastApiGatewayAuthorizer
+            name: ShopFastCognitoAuthorizer
             scopes:
               - payment-service/payments.create
 
@@ -36,8 +35,7 @@ functions:
           path: /payments/refund
           method: post
           authorizer:
-            authorizerId:
-              Ref: ShopFastApiGatewayAuthorizer
+            name: ShopFastCognitoAuthorizer
             scopes:
               - payment-service/payments.refund
 
