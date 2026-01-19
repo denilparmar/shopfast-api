@@ -16,55 +16,53 @@ provider:
     USER_POOL_ID: !ImportValue ShopFast-UserPoolId
     USER_POOL_CLIENT_ID: !ImportValue ShopFast-UserPoolClientIdA
 
+# =========================
+# HTTP API configuration
+# =========================
+httpApi:
+  cors: true
+  authorizers:
+    cognitoAuthorizer:
+      type: cognito
+      userPoolArn: !ImportValue ShopFast-UserPoolArn
+
 functions:
   createPayment:
     handler: src/handler.create_payment
     events:
-      - http:
+      - httpApi:
           path: /payments/create
-          method: post
+          method: POST
           authorizer:
-            name: ShopFastCognitoAuthorizer
+            name: cognitoAuthorizer
             scopes:
               - payment-service/payments.create
 
   refundPayment:
     handler: src/handler.refund_payment
     events:
-      - http:
+      - httpApi:
           path: /payments/refund
-          method: post
+          method: POST
           authorizer:
-            name: ShopFastCognitoAuthorizer
+            name: cognitoAuthorizer
             scopes:
               - payment-service/payments.refund
 
 resources:
   Resources:
-    ShopFastApiGatewayAuthorizer:
-      Type: AWS::ApiGateway::Authorizer
-      Properties:
-        Name: ShopFastCognitoAuthorizer
-        Type: COGNITO_USER_POOLS
-        IdentitySource: method.request.header.Authorization
-        RestApiId:
-          Ref: ApiGatewayRestApi
-        ProviderARNs:
-          - !ImportValue ShopFast-UserPoolArn
-
     ApiCustomDomain:
-      Type: AWS::ApiGateway::DomainName
+      Type: AWS::ApiGatewayV2::DomainName
       Properties:
         DomainName: api-dev.denilparmar.work
-        CertificateArn: ${cf:shopfast-api-cert-dev.ShopFastApiCertificateArn}
-        EndpointConfiguration:
-          Types:
-            - EDGE
-    
+        DomainNameConfigurations:
+          - CertificateArn: ${cf:shopfast-api-cert-dev.ShopFastApiCertificateArn}
+            EndpointType: EDGE
+
     ApiBasePathMapping:
-      Type: AWS::ApiGateway::BasePathMapping
+      Type: AWS::ApiGatewayV2::ApiMapping
       Properties:
+        ApiId: !Ref HttpApi
         DomainName: !Ref ApiCustomDomain
-        RestApiId: !Ref ApiGatewayRestApi
         Stage: ${self:provider.stage}
-        BasePath: ''
+        ApiMappingKey: ''
