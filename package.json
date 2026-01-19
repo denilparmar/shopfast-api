@@ -1,13 +1,12 @@
 {
-  "name": "shopfast-api",
+  "name": "shopfast-api-cdk",
   "version": "1.0.0",
-  "private": true,
-  "scripts": {
-    "offline": "serverless offline"
+  "dependencies": {
+    "aws-cdk-lib": "^2.95.0",
+    "constructs": "^10.1.196"
   },
   "devDependencies": {
-    "serverless": "^3.40.0",
-    "serverless-dotenv-plugin": "^6.0.0",
-    "serverless-offline": "^14.4.0"
+    "typescript": "^5.0.0",
+    "ts-node": "^10.9.1"
   }
 }

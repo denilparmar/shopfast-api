@@ -14,6 +14,7 @@ jobs:
       AWS_DEFAULT_REGION: us-east-1
       USER_POOL_ID: ${{ secrets.USER_POOL_ID }}
       USER_POOL_CLIENT_ID: ${{ secrets.USER_POOL_CLIENT_ID }}
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
 
     steps:
       - name: Checkout code
@@ -29,10 +30,22 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
+          aws-region: ${{ env.AWS_REGION }}
 
-      - name: Install dependencies
+      - name: Install Node dependencies
         run: npm install --legacy-peer-deps
 
-      - name: Deploy Serverless API
-        run: npx serverless deploy --stage dev
+      - name: Install Python dependencies for Lambdas
+        run: |
+          python3 -m venv .venv
+          source .venv/bin/activate
+          pip install -r src/requirements.txt -t src
+
+      - name: Build TypeScript CDK
+        run: npx tsc
+
+      - name: Bootstrap CDK (if first time)
+        run: npx cdk bootstrap aws://$AWS_ACCOUNT_ID/$AWS_REGION
+
+      - name: Deploy CDK Stack
+        run: npx cdk deploy ShopfastApiStack --require-approval never
