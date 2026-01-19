@@ -5,6 +5,7 @@ frameworkVersion: '3'
 plugins:
   - serverless-offline
   - serverless-dotenv-plugin
+  - serverless-domain-manager
 
 provider:
   name: aws
@@ -16,8 +17,17 @@ provider:
     USER_POOL_ID: !ImportValue ShopFast-UserPoolId
     USER_POOL_CLIENT_ID: !ImportValue ShopFast-UserPoolClientIdA
 
-functions:
+custom:
+  customDomain:
+    domainName: api-dev.denilparmar.work
+    stage: dev
+    createRoute53Record: false
+    endpointType: EDGE
+    securityPolicy: TLS_1_2
+    certificateName: api-dev.denilparmar.work
+    autoDomain: true
 
+functions:
   createPayment:
     handler: src/handler.create_payment
     events:
@@ -46,7 +56,6 @@ functions:
 
 resources:
   Resources:
-
     ShopFastApiGatewayAuthorizer:
       Type: AWS::ApiGateway::Authorizer
       Properties:
