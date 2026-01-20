@@ -7,6 +7,7 @@ import * as certificatemanager from "aws-cdk-lib/aws-certificatemanager";
 import * as authorizers from "aws-cdk-lib/aws-apigatewayv2-authorizers";
 import * as cognito from "aws-cdk-lib/aws-cognito";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
+import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
 import * as path from "path";
 
 export class ShopfastApiStack extends cdk.Stack {
@@ -24,6 +25,7 @@ export class ShopfastApiStack extends cdk.Stack {
         code: lambda.Code.fromAsset(path.join(__dirname, "../../src")),
         environment: {
           PAYMENTS_TABLE_NAME: cdk.Fn.importValue("ShopFast-PaymentsTableName"),
+          STRIPE_SECRET_ARN: cdk.Fn.importValue("ShopFast-StripeSecretArn")
         },
       },
     );
@@ -37,6 +39,7 @@ export class ShopfastApiStack extends cdk.Stack {
         code: lambda.Code.fromAsset(path.join(__dirname, "../../src")),
         environment: {
           PAYMENTS_TABLE_NAME: cdk.Fn.importValue("ShopFast-PaymentsTableName"),
+          STRIPE_SECRET_ARN: cdk.Fn.importValue("ShopFast-StripeSecretArn")
         },
       },
     );
@@ -129,6 +132,17 @@ export class ShopfastApiStack extends cdk.Stack {
     );
     paymentsTable.grantReadWriteData(createPaymentLambda);
     paymentsTable.grantReadWriteData(refundPaymentLambda);
+    //#endregion
+
+    //#region Stripe Secret Key
+    const stripeSecret = secretsmanager.Secret.fromSecretCompleteArn(
+      this,
+      "StripeSecret",
+      cdk.Fn.importValue("ShopFast-StripeSecretArn"),
+    );
+
+    stripeSecret.grantRead(createPaymentLambda);
+    stripeSecret.grantRead(refundPaymentLambda);
     //#endregion
   }
 }
