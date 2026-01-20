@@ -125,7 +125,7 @@ export class ShopfastApiStack extends cdk.Stack {
     const paymentsTable = dynamodb.Table.fromTableArn(
       this,
       "ImportedPaymentsTable",
-      cdk.Fn.importValue("ShopFast-PaymentsTableName"),
+      cdk.Fn.importValue("ShopFast-PaymentsTableArn"),
     );
     paymentsTable.grantReadWriteData(createPaymentLambda);
     paymentsTable.grantReadWriteData(refundPaymentLambda);
