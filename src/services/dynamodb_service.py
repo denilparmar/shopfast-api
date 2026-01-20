@@ -3,8 +3,9 @@ import time
 import boto3
 
 table_name = os.environ["PAYMENTS_TABLE_NAME"]
-dynamodb = boto3.resource("dynamodb")
-table = dynamodb.table(table_name)
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table(table_name)
+
 
 def save_payment(payment_id: str, stripe_payment_intent_id: str, amount: int, currency: str, status: str):
     table.put_item(
