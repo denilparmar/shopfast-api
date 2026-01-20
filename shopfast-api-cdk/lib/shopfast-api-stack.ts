@@ -3,14 +3,15 @@ import { Construct } from "constructs";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as apigwv2 from "aws-cdk-lib/aws-apigatewayv2";
 import * as integrations from "aws-cdk-lib/aws-apigatewayv2-integrations";
-import * as certificatemanager from 'aws-cdk-lib/aws-certificatemanager';
-import * as authorizers from 'aws-cdk-lib/aws-apigatewayv2-authorizers';
-import * as cognito from 'aws-cdk-lib/aws-cognito';
-import * as path from 'path';
+import * as certificatemanager from "aws-cdk-lib/aws-certificatemanager";
+import * as authorizers from "aws-cdk-lib/aws-apigatewayv2-authorizers";
+import * as cognito from "aws-cdk-lib/aws-cognito";
+import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
+import * as path from "path";
 
 export class ShopfastApiStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
-    const stage = 'dev';
+    const stage = "dev";
     super(scope, id, props);
 
     //#region Lambda Functions
@@ -20,7 +21,10 @@ export class ShopfastApiStack extends cdk.Stack {
       {
         runtime: lambda.Runtime.PYTHON_3_11,
         handler: "handler.create_payment",
-        code: lambda.Code.fromAsset(path.join(__dirname, '../../src')),
+        code: lambda.Code.fromAsset(path.join(__dirname, "../../src")),
+        environment: {
+          PAYMENTS_TABLE_NAME: cdk.Fn.importValue("ShopFast-PaymentsTableName"),
+        },
       },
     );
 
@@ -30,37 +34,50 @@ export class ShopfastApiStack extends cdk.Stack {
       {
         runtime: lambda.Runtime.PYTHON_3_11,
         handler: "handler.refund_payment",
-        code: lambda.Code.fromAsset(path.join(__dirname, '../../src')),
+        code: lambda.Code.fromAsset(path.join(__dirname, "../../src")),
+        environment: {
+          PAYMENTS_TABLE_NAME: cdk.Fn.importValue("ShopFast-PaymentsTableName"),
+        },
       },
     );
     //#endregion
 
     //#region API Gateway Cognito Authorizer
-    const userPoolId = cdk.Fn.importValue('ShopFast-UserPoolId');
-    const userPoolClientId = cdk.Fn.importValue('ShopFast-UserPoolClientIdA');
-    const userPool = cognito.UserPool.fromUserPoolId(this, 'ImportedUserPool', userPoolId);
-    const userPoolClient = cognito.UserPoolClient.fromUserPoolClientId(this, 'ImportedClient', userPoolClientId);
+    const userPoolId = cdk.Fn.importValue("ShopFast-UserPoolId");
+    const userPoolClientId = cdk.Fn.importValue("ShopFast-UserPoolClientIdA");
+    const userPool = cognito.UserPool.fromUserPoolId(
+      this,
+      "ImportedUserPool",
+      userPoolId,
+    );
+    const userPoolClient = cognito.UserPoolClient.fromUserPoolClientId(
+      this,
+      "ImportedClient",
+      userPoolClientId,
+    );
 
-
-    const cognitoAuthorizer = new authorizers.HttpUserPoolAuthorizer('ShopfastAPICognitoAuthorizer', userPool, {
-      userPoolClients: [userPoolClient],
-      authorizerName: 'ShopfastAPICognitoAuthorizer',
-      identitySource: ['$request.header.Authorization'],
-    })
-     //#endregion
+    const cognitoAuthorizer = new authorizers.HttpUserPoolAuthorizer(
+      "ShopfastAPICognitoAuthorizer",
+      userPool,
+      {
+        userPoolClients: [userPoolClient],
+        authorizerName: "ShopfastAPICognitoAuthorizer",
+        identitySource: ["$request.header.Authorization"],
+      },
+    );
+    //#endregion
 
     //#region HTTP API Gateway
     const httpApi = new apigwv2.HttpApi(this, "ShopfastHttpApi", {
-      apiName: 'shopfast-api',
+      apiName: "shopfast-api",
     });
 
-
-    const apiStage = new apigwv2.HttpStage(this, 'DevStage', {
+    const apiStage = new apigwv2.HttpStage(this, "DevStage", {
       httpApi: httpApi,
       stageName: stage,
       autoDeploy: true,
     });
-    
+
     httpApi.addRoutes({
       path: "/payments/create",
       methods: [apigwv2.HttpMethod.POST],
@@ -69,7 +86,7 @@ export class ShopfastApiStack extends cdk.Stack {
         createPaymentLambda,
       ),
       authorizer: cognitoAuthorizer,
-      authorizationScopes: ['payment-service/payments.create'],
+      authorizationScopes: ["payment-service/payments.create"],
     });
 
     httpApi.addRoutes({
@@ -80,28 +97,38 @@ export class ShopfastApiStack extends cdk.Stack {
         refundPaymentLambda,
       ),
       authorizer: cognitoAuthorizer,
-      authorizationScopes: ['payment-service/payments.refund'],
+      authorizationScopes: ["payment-service/payments.refund"],
     });
     //#endregion
 
     //#region CustomDomain For API
-    const certificateArn = cdk.Fn.importValue('ShopFast-ApiCertificateArn');
+    const certificateArn = cdk.Fn.importValue("ShopFast-ApiCertificateArn");
     const certificate = certificatemanager.Certificate.fromCertificateArn(
       this,
-      'ApiCertificate',
-      certificateArn
+      "ApiCertificate",
+      certificateArn,
     );
 
-    const apiDomainName = new apigwv2.DomainName(this, 'CustomDomain', {
-      domainName: 'api-dev.denilparmar.work',
+    const apiDomainName = new apigwv2.DomainName(this, "CustomDomain", {
+      domainName: "api-dev.denilparmar.work",
       certificate: certificate,
     });
 
-    new apigwv2.ApiMapping(this, 'ApiMapping', {
+    new apigwv2.ApiMapping(this, "ApiMapping", {
       api: httpApi,
       domainName: apiDomainName,
       stage: apiStage,
     });
-     //#endregion
+    //#endregion
+
+    //#region DynamoDB Permissions
+    const paymentsTable = dynamodb.Table.fromTableArn(
+      this,
+      "ImportedPaymentsTable",
+      cdk.Fn.importValue("ShopFast-PaymentsTableName"),
+    );
+    paymentsTable.grantReadWriteData(createPaymentLambda);
+    paymentsTable.grantReadWriteData(refundPaymentLambda);
+    //#endregion
   }
 }

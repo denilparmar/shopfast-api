@@ -1,11 +1,34 @@
-# ShopFast API
+# Shopfast API (AWS CDK)
 
-Serverless API using:
-- AWS API Gateway (HTTP API)
-- AWS Lambda (Python)
-- Cognito User Pool (JWT + scopes)
-- Serverless Framework
+AWS CDK stack that deploys a payment API using Lambda, API Gateway HTTP API, Cognito authentication, and a custom domain.
 
-## Deploy
+## Resources
+- **Lambda**
+  - Create payment
+  - Refund payment
+- **API Gateway (HTTP API)**
+- **Cognito User Pool Authorizer**
+- **Custom Domain + ACM Certificate**
+
+## Endpoints
+- `POST /payments/create`  
+  Scope: `payment-service/payments.create`
+- `POST /payments/refund`  
+  Scope: `payment-service/payments.refund`
+
+## Authentication
+- Cognito User Pool authorizer
+- Access token via `Authorization` header
+- Imported values:
+  - `ShopFast-UserPoolId`
+  - `ShopFast-UserPoolClientIdA`
+
+## Domain
+- `https://api-dev.denilparmar.work`
+- Certificate imported via `ShopFast-ApiCertificateArn`
+
+## Deployment
 ```bash
-serverless deploy --stage dev
+npm install
+cdk bootstrap
+cdk deploy
