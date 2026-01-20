@@ -5,6 +5,7 @@ from utils.secrets_manager import get_secret
 def init_stripe():
     stripe_secret_arn = os.environ["STRIPE_SECRET_ARN"]
     stripe.api_key = get_secret(stripe_secret_arn)
+    return stripe
 
 def create_payment_intent(amount_cents: int, currency: str = "usd", metadata: dict = None):
     stripe_client = init_stripe()
