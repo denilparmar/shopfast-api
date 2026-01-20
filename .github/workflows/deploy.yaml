@@ -33,7 +33,9 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Install Node dependencies
-        run: npm install --legacy-peer-deps
+        run: |
+          cd shopfast-api-cdk
+          npm install --legacy-peer-deps
 
       - name: Install Python dependencies for Lambdas
         run: |
