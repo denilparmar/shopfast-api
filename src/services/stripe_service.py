@@ -6,7 +6,7 @@ _stripe_initialized = False
 
 def init_stripe():
     global _stripe_initialized
-    
+
     if not _stripe_initialized:
         stripe_secret_arn = os.environ["STRIPE_SECRET_ARN"]
         stripe.api_key = get_secret(stripe_secret_arn)
@@ -14,12 +14,13 @@ def init_stripe():
 
     return stripe
 
-def create_payment_intent(amount_cents: int, currency: str = "usd", metadata: dict = None):
+def create_payment_intent(payment_id: str, amount_cents: int, currency: str = "usd", metadata: dict = None):
     stripe_client = init_stripe()
     intent = stripe_client.PaymentIntent.create(
         amount=amount_cents,
         currency=currency,
-        metadata=metadata
+        metadata=metadata,
+        idempotency_key=payment_id
     )
     return intent
 

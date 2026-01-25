@@ -12,6 +12,7 @@ def create_payment(event, context):
 
         # Create Stripe PaymentIntent
         intent = stripe_service.create_payment_intent(
+            payment_id=payment_id,
             amount_cents=amount,
             currency=currency,
             metadata={"paymentId": payment_id}
