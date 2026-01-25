@@ -32,6 +32,7 @@ def create_payment(event, context):
 
         return {
             "statusCode": 200,
+            "headers": {"Content-Type": "application/json"},
             "body": json.dumps({
                 "paymentId": payment_id,
                 "stripePaymentIntentId": intent.id,
@@ -40,10 +41,12 @@ def create_payment(event, context):
         }
 
     except Exception as e:
-        return {
-            "statusCode": 500,
-            "body": json.dumps({"error": str(e)}),
-        }
+        # return {
+        #     "statusCode": 500,
+        #     "headers": {"Content-Type": "application/json"},
+        #     "body": json.dumps({"error": str(e)}),
+        # }
+        raise
 
 def refund_payment(event, context):
     try:

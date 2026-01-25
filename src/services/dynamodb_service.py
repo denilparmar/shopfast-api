@@ -8,20 +8,17 @@ table = dynamodb.Table(table_name)
 
 
 def save_payment(payment_id: str, stripe_payment_intent_id: str, amount: int, currency: str, status: str):
-    try:
-        table.put_item(
-            Item={
-                "paymentId": payment_id,
-                "stripePaymentIntentId": stripe_payment_intent_id,
-                "amount": amount,
-                "currency": currency,
-                "status": status,
-                "createdAt": int(time.time()),
-                "updatedAt": int(time.time()),
-            }
-        )
-    except Exception as e:
-        print(f"Error putting item: {e}")
+    table.put_item(
+        Item={
+            "paymentId": payment_id,
+            "stripePaymentIntentId": stripe_payment_intent_id,
+            "amount": amount,
+            "currency": currency,
+            "status": status,
+            "createdAt": int(time.time()),
+            "updatedAt": int(time.time()),
+        }
+    )
 
 def update_payment_status(payment_id: str, status: str):
     table.update_item(
