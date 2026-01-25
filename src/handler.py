@@ -81,3 +81,6 @@ def payment_status(event, context):
 
     except Exception as e:
         return {"statusCode": 500, "body": json.dumps({"error": str(e)})}
+
+def stripeWebhooks(event, context):
+    print(f"Webhook event received: ${event}")
