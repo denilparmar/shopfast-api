@@ -6,16 +6,15 @@ def create_payment(event, context):
     try:
         # For demo: amount passed in body
         body = json.loads(event.get("body", "{}"))
-        amount = body.get("amount", 1000)  # default $10.00
+        amount = body.get("amount")
         currency = body.get("currency", "usd")
-        payment_id = str(uuid.uuid4())
+        payment_id = body.get("paymentId")
 
         # Create Stripe PaymentIntent
         intent = stripe_service.create_payment_intent(
             payment_id=payment_id,
             amount_cents=amount,
-            currency=currency,
-            metadata={"paymentId": payment_id}
+            currency=currency
         )
 
         # Save to DynamoDB

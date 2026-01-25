@@ -14,12 +14,11 @@ def init_stripe():
 
     return stripe
 
-def create_payment_intent(payment_id: str, amount_cents: int, currency: str = "usd", metadata: dict = None):
+def create_payment_intent(payment_id: str, amount_cents: int, currency: str = "usd"):
     stripe_client = init_stripe()
     intent = stripe_client.PaymentIntent.create(
         amount=amount_cents,
         currency=currency,
-        metadata=metadata,
         idempotency_key=payment_id
     )
     return intent
