@@ -4,7 +4,6 @@ from services import stripe_service, dynamodb_service
 
 def create_payment(event, context):
     try:
-        # For demo: amount passed in body
         body = json.loads(event.get("body", "{}"))
         amount = body.get("amount")
         currency = body.get("currency", "usd")

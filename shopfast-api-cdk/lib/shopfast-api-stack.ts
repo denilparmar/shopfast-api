@@ -47,6 +47,23 @@ export class ShopfastApiStack extends cdk.Stack {
         },
       },
     );
+
+    const stripeWebhooksLambda = new lambda.Function(
+      this,
+      "StripeWebhooksLambda",
+      {
+        runtime: lambda.Runtime.PYTHON_3_11,
+        handler: "handler.stripeWebhooks",
+        memorySize: 512,
+        timeout: cdk.Duration.seconds(15),
+        code: lambda.Code.fromAsset(path.join(__dirname, "../../src")),
+        environment: {
+          PAYMENTS_TABLE_NAME: cdk.Fn.importValue("ShopFast-PaymentsTableName"),
+          STRIPE_SECRET_ARN: cdk.Fn.importValue("ShopFast-StripeSecretArn")
+        },
+      },
+    );
+
     //#endregion
 
     //#region API Gateway Cognito Authorizer
@@ -106,6 +123,16 @@ export class ShopfastApiStack extends cdk.Stack {
       authorizer: cognitoAuthorizer,
       authorizationScopes: ["payment-service/payments.refund"],
     });
+
+    httpApi.addRoutes({
+      path: "/payments/stripe-webhooks",
+      methods: [apigwv2.HttpMethod.POST],
+      integration: new integrations.HttpLambdaIntegration(
+        "StripeWebhooksLambda",
+        stripeWebhooksLambda,
+      )
+    });
+
     //#endregion
 
     //#region CustomDomain For API
