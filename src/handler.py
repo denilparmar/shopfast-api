@@ -31,6 +31,7 @@ def create_payment(event, context):
             "body": json.dumps({
                 "paymentId": payment_id,
                 "stripePaymentIntentId": intent.id,
+                "clientSecret": intent.client_secret,
                 "status": "created"
             }),
         }
