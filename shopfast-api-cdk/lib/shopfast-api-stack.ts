@@ -22,6 +22,8 @@ export class ShopfastApiStack extends cdk.Stack {
       {
         runtime: lambda.Runtime.PYTHON_3_11,
         handler: "handler.create_payment",
+        memorySize: 512,
+        timeout: cdk.Duration.seconds(15),
         code: lambda.Code.fromAsset(path.join(__dirname, "../../src")),
         environment: {
           PAYMENTS_TABLE_NAME: cdk.Fn.importValue("ShopFast-PaymentsTableName"),
@@ -36,6 +38,8 @@ export class ShopfastApiStack extends cdk.Stack {
       {
         runtime: lambda.Runtime.PYTHON_3_11,
         handler: "handler.refund_payment",
+        memorySize: 512,
+        timeout: cdk.Duration.seconds(15),
         code: lambda.Code.fromAsset(path.join(__dirname, "../../src")),
         environment: {
           PAYMENTS_TABLE_NAME: cdk.Fn.importValue("ShopFast-PaymentsTableName"),

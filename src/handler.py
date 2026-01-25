@@ -17,8 +17,6 @@ def create_payment(event, context):
             metadata={"paymentId": payment_id}
         )
 
-        print(f"Intent created {intent}" )
-
         # Save to DynamoDB
         dynamodb_service.save_payment(
             payment_id=payment_id,
@@ -27,8 +25,6 @@ def create_payment(event, context):
             currency=currency,
             status="created"
         )
-
-        print("after save")
 
         return {
             "statusCode": 200,
@@ -41,11 +37,11 @@ def create_payment(event, context):
         }
 
     except Exception as e:
-        # return {
-        #     "statusCode": 500,
-        #     "headers": {"Content-Type": "application/json"},
-        #     "body": json.dumps({"error": str(e)}),
-        # }
+        return {
+            "statusCode": 500,
+            "headers": {"Content-Type": "application/json"},
+            "body": json.dumps({"error": str(e)}),
+        }
         raise
 
 def refund_payment(event, context):
