@@ -17,6 +17,8 @@ def create_payment(event, context):
             metadata={"paymentId": payment_id}
         )
 
+        print(f"Intent created {intent}" )
+
         # Save to DynamoDB
         dynamodb_service.save_payment(
             payment_id=payment_id,
@@ -25,6 +27,8 @@ def create_payment(event, context):
             currency=currency,
             status="created"
         )
+
+        print("after save")
 
         return {
             "statusCode": 200,
