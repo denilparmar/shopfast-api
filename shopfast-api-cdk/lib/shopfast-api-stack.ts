@@ -94,6 +94,12 @@ export class ShopfastApiStack extends cdk.Stack {
     //#region HTTP API Gateway
     const httpApi = new apigwv2.HttpApi(this, "ShopfastHttpApi", {
       apiName: "shopfast-api",
+      corsPreflight: {
+        allowHeaders: ['Authorization', 'Content-Type', 'X-Amz-Date', 'X-Api-Key'],
+        allowMethods: [apigwv2.CorsHttpMethod.GET, apigwv2.CorsHttpMethod.HEAD, apigwv2.CorsHttpMethod.OPTIONS, apigwv2.CorsHttpMethod.POST],
+        allowOrigins: ['*'],
+        maxAge: cdk.Duration.days(10),
+      },
     });
 
     const apiStage = new apigwv2.HttpStage(this, "DevStage", {
