@@ -142,7 +142,7 @@ export class ShopfastApiStack extends cdk.Stack {
 
     new cdk.aws_wafv2.CfnWebACLAssociation(this, 'MyWebAclAssociation', {
       webAclArn: cdk.Fn.importValue('ShopFastApiWebACLArn'),
-      resourceArn: `arn:aws:apigateway:${this.region}::/apis/${httpApi.apiId}/stages/${stage}`
+      resourceArn: `arn:aws:execute-api:${this.region}:${this.account}:${httpApi.apiId}/${stage}/*`
     })
 
 
