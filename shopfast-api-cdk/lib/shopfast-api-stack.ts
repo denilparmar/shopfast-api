@@ -8,6 +8,7 @@ import * as authorizers from "aws-cdk-lib/aws-apigatewayv2-authorizers";
 import * as cognito from "aws-cdk-lib/aws-cognito";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
+import * as wafv2 from 'aws-cdk-lib/aws-wafv2';
 import * as path from "path";
 
 export class ShopfastApiStack extends cdk.Stack {
@@ -138,6 +139,12 @@ export class ShopfastApiStack extends cdk.Stack {
         stripeWebhooksLambda,
       )
     });
+
+    new cdk.aws_wafv2.CfnWebACLAssociation(this, 'MyWebAclAssociation', {
+      webAclArn: cdk.Fn.importValue('WebACLArn'),
+      resourceArn: `arn:aws:apigateway:${this.region}::/apis/${httpApi.apiId}/stages/${stage}`
+    })
+
 
     //#endregion
 
